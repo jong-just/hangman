@@ -12,6 +12,10 @@ end
 class Hangman
   include Toolbox
 
+  @@current_guess = []
+  @@guess_word
+  @@guess_word_array = []
+
   # returns a random integer from 0 to size of given array
   def rng(array_for_size)
     rand(1..array_for_size.size).to_i
@@ -20,7 +24,7 @@ class Hangman
   # returns a word randomly selected from dictionary array
   def generate_word
     dictionary_array = generate_dictionary_array
-    dictionary_array[rng(dictionary_array)]
+    @@guess_word = dictionary_array[rng(dictionary_array)].join('')
   end
 
   # returns array of words from csv file
@@ -38,10 +42,32 @@ class Hangman
     return dictionary_array
   end
 
+  def test_output
+    puts @@guess_word
+  end
+
+  def test_output_scrambled
+    scramble_guess_word
+    puts @@guess_word_array.join
+  end
+
+  private
+
+  def output_guess_word
+    puts @@current_guess
+  end
+
+  def scramble_guess_word
+    @@guess_word.length.times do
+      @@guess_word_array << "_"
+    end
+  end
+
 end
 
 # class to hold player's data
 class Player
+  @@guess_array
   def get_player_guess
     gets.chomp 
   end
@@ -51,4 +77,6 @@ puts "Game starting!"
 
 new_game = Hangman.new
 
-puts new_game.generate_word
+new_game.generate_word
+new_game.test_output
+new_game.test_output_scrambled
