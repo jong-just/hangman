@@ -8,13 +8,22 @@ module Toolbox
   end
 end
 
+# class to hold player's data
+class Player
+  attr_accessor :word
+
+  def initialize(word)
+    @word = word
+  end
+end
+
 # class to hold all of methods for the game of hangman
 class Hangman
   include Toolbox
 
-  @@current_guess = []
-  @@guess_word
-  @@guess_word_array = []
+  @@answer_word_scrambled_array = []
+
+  private
 
   # returns a random integer from 0 to size of given array
   def rng(array_for_size)
@@ -42,34 +51,56 @@ class Hangman
     return dictionary_array
   end
 
+  # creates the array that will show the progress of the game i.e. word -> ____
+  def scramble_guess_word
+    @@guess_word.length.times do
+      @@answer_word_scrambled_array << "_"
+    end
+  end
+
+  # method for getting player's input
+  def player_input
+    gets.chomp
+  end
+
+  def check_player_guess
+    
+
+    puts "Guess word array: #{@@answer_word_scrambled_array}"
+  end
+
+  public
+
   def test_output
     puts @@guess_word
   end
 
   def test_output_scrambled
+    generate_word
     scramble_guess_word
-    puts @@guess_word_array.join
+    puts @@answer_word_scrambled_array.join
   end
 
-  private
-
-  def output_guess_word
-    puts @@current_guess
+  def output_scrambled
+    puts @@answer_word_scrambled_array.join
   end
 
-  def scramble_guess_word
-    @@guess_word.length.times do
-      @@guess_word_array << "_"
-    end
+  # method for generating the player object and getting first initial guess
+  def get_initial_player_guess
+    @@player_guess = Player.new(player_input)
   end
 
-end
-
-# class to hold player's data
-class Player
-  @@guess_array
+  # method for getting player's word guess attempts
   def get_player_guess
-    gets.chomp 
+    @@player_guess.word = player_input
+  end
+
+  def play_round
+    generate_word
+    scramble_guess_word
+    output_scrambled
+    get_initial_player_guess
+    check_player_guess
   end
 end
 
@@ -77,6 +108,4 @@ puts "Game starting!"
 
 new_game = Hangman.new
 
-new_game.generate_word
-new_game.test_output
-new_game.test_output_scrambled
+new_game.play_round
