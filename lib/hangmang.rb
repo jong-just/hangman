@@ -68,6 +68,7 @@ class Hangman
   # method for getting player's input
   def player_input
     until @@good_input do
+      print "You guess: "
       output = input_validation(gets.chomp.downcase)
     end
     @@good_input = false
@@ -102,12 +103,11 @@ class Hangman
       puts "#{@@player_guess.word} was not in the word."
       @@incorrect_count+=1
     elsif good_letter
-      puts "#{@@player_guess.word} was in #{count} time[s]."
+      puts "#{@@player_guess.word.upcase} was in #{count} time[s]."
     else
       puts "Uh-oh. ERRRORR!!"
     end
     puts "Guess word array: #{@@answer_word_scrambled_array.join}"
-    p @@guess_word
   end
 
   # test output, can be deleted after finish
