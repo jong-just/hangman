@@ -28,6 +28,7 @@ class Hangman
   @@win = false
   @@lose = false
   @@end = false
+  @@good_input = false
 
   private
 
@@ -66,9 +67,26 @@ class Hangman
 
   # method for getting player's input
   def player_input
-    gets.chomp
+    until @@good_input do
+      output = input_validation(gets.chomp.downcase)
+    end
+    @@good_input = false
+    return output
   end
 
+  # method that checks if input is only 1 letter and is actually a letter
+  def input_validation(letter)
+    if letter.length != 1
+      puts "Please input one letter."
+    elsif letter.upcase != letter
+      @@good_input = true
+      return letter
+    else
+      puts "Please input a letter."
+    end
+  end
+
+  # core game mechainc that checks if the player's letter guess is in the word
   def check_player_guess
     good_letter = false
     count = 0
@@ -92,6 +110,7 @@ class Hangman
     p @@guess_word
   end
 
+  # test output, can be deleted after finish
   def output_scrambled
     puts @@answer_word_scrambled_array.join
   end
@@ -106,11 +125,13 @@ class Hangman
     @@player_guess.word = player_input
   end
 
+  # calls methods to play one round
   def play_round
     get_player_guess
     check_player_guess
   end
 
+  # method that contains the string of methods needed to set up a new game
   def game_setup
     generate_word
     scramble_guess_word
@@ -120,10 +141,12 @@ class Hangman
     output_chances_left
   end
 
+  # method that outputs the current chances left
   def output_chances_left
-    puts "You have #{MAXROUNDS-@@incorrect_count}/#{MAXROUNDS} chances left."
+    puts "You have #{MAXROUNDS-@@incorrect_count}/#{MAXROUNDS} chances left.\n \n"
   end
 
+  # method that checks if the player has won or not
   def win_check
     if @@guess_word == @@answer_word_scrambled_array.join
       @@end = true
@@ -131,6 +154,7 @@ class Hangman
     end
   end
 
+  # method that chekcs if the player has long all chances and therefore lost
   def lose_check
     if @@incorrect_count == MAXROUNDS
       @@end = true
@@ -138,6 +162,7 @@ class Hangman
     end
   end
 
+  # method that calls both the loss and win checks
   def end_condition_check
     lose_check
     win_check
@@ -145,6 +170,7 @@ class Hangman
 
   public
 
+  # method for playing a new game
   def play_game
     game_setup
     until @@end do
