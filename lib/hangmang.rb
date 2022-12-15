@@ -83,6 +83,10 @@ class Hangman
   def input_validation(letter)
     if letter == "save"
       save_game
+      puts "Game has been saved. See you next time!"
+      @@end = true
+      @@good_input = true
+      return "save"
     elsif letter.length != 1
       puts "Please input one letter."
     elsif letter.upcase != letter
@@ -134,7 +138,9 @@ class Hangman
   # calls methods to play one round
   def play_round
     get_player_guess
-    check_player_guess
+    if @@player_guess.word != "save"
+      check_player_guess
+    end
   end
 
   # method that contains the string of methods needed to set up a new game
@@ -203,6 +209,8 @@ class Hangman
 
   def load_game
     load_game_data
+    output_scrambled
+    output_chances_left
     play_game
   end
 
@@ -214,6 +222,9 @@ class Hangman
   def play_game
     until @@end do
       play_round
+      if @@player_guess.word == "save"
+        break
+      end
       end_condition_check
       output_chances_left
     end
@@ -221,15 +232,23 @@ class Hangman
       puts "You lose! The word was #{@@guess_word}."
     elsif @@win
       puts "You win! The word was #{@@guess_word}"
-    else
-      puts "Uh-oh, another error at play_game!!"
     end
   end
 end
 
 puts "Game starting!"
 print "New game or load? "
-new_game = Hangman.new(gets.chomp)
+
+while true
+  game_mode = gets.chomp
+  if game_mode == "new" || game_mode == "load" || game_mode == "new game"
+    break
+  else
+    print "That is not an option. Please select new or load: "
+  end
+end
+
+new_game = Hangman.new(game_mode)
 
 if new_game.gamemode == "new"
   new_game.new_game
