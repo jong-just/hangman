@@ -1,4 +1,5 @@
 require 'csv'
+require 'json'
 
 # toolbox for methods needed throughout the game
 module Toolbox
@@ -8,6 +9,7 @@ module Toolbox
   end
 
   MAXROUNDS = 6
+  FILE_NAME = "save.json"
 end
 
 # class to hold player's data
@@ -22,6 +24,7 @@ end
 # class to hold all of methods for the game of hangman
 class Hangman
   include Toolbox
+  attr_reader :gamemode
 
   @@answer_word_scrambled_array = []
   @@incorrect_count = 0
@@ -29,6 +32,7 @@ class Hangman
   @@lose = false
   @@end = false
   @@good_input = false
+  @@player_guess = ''
 
   private
 
@@ -77,7 +81,9 @@ class Hangman
 
   # method that checks if input is only 1 letter and is actually a letter
   def input_validation(letter)
-    if letter.length != 1
+    if letter == "save"
+      save_game
+    elsif letter.length != 1
       puts "Please input one letter."
     elsif letter.upcase != letter
       @@good_input = true
@@ -168,11 +174,44 @@ class Hangman
     win_check
   end
 
+  def save_game
+    game_data = {
+      player_current_guess: @@answer_word_scrambled_array,
+      answer_word: @@guess_word,
+      count_of_tries: @@incorrect_count,
+      last_guess: @@player_guess.word
+    }
+    save_file = File.open(FILE_NAME, "w")
+    save_file.puts JSON.generate(game_data)
+  end
+
+  def load_game_data
+    load_data = File.open(FILE_NAME, "r")
+    game_data = JSON.parse(load_data.read, {:symbolize_names => true})
+    @@answer_word_scrambled_array = game_data[:player_current_guess]
+    @@guess_word = game_data[:answer_word]
+    @@incorrect_count = game_data[:count_of_tries]
+    @@player_guess = Player.new(game_data[:last_guess])
+  end
+
   public
+
+  def new_game
+    game_setup
+    play_game
+  end
+
+  def load_game
+    load_game_data
+    play_game
+  end
+
+  def initialize(gamemode)
+    @gamemode = gamemode
+  end
 
   # method for playing a new game
   def play_game
-    game_setup
     until @@end do
       play_round
       end_condition_check
@@ -189,7 +228,13 @@ class Hangman
 end
 
 puts "Game starting!"
+print "New game or load? "
+new_game = Hangman.new(gets.chomp)
 
-new_game = Hangman.new
-
-new_game.play_game
+if new_game.gamemode == "new"
+  new_game.new_game
+elsif new_game.gamemode == "load"
+  new_game.load_game
+else
+  puts "Uh-oh, error in gamemode selection!"
+end
